@@ -1,0 +1,111 @@
+{
+    "name": "default_config",
+    "n_gpu": 1,
+    "preprocessing": {
+        "sr": 16000,
+        "spectrogram": {
+            "type": "MelSpectrogram",
+            "args": {}
+        },
+        "log_spec": true
+    },
+    "augmentations": {
+        "wave": [],
+        "spectrogram": []
+    },
+    "arch": {
+        "type": "SpExp",
+        "args": {
+            "N": 64,
+            "L1": 25,
+            "L2": 100,
+            "L3": 200,
+            "O": 64,
+            "P": 32,
+            "Q": 3,
+            "num_speakers": 10000
+        }
+    },
+    "data": {
+        "train": {
+            "batch_size": 10,
+            "num_workers": 5,
+            "datasets": [
+                {
+                    "type": "MixerDataset",
+                    "args": {
+                        "data_dir": "/kaggle/input/tgritsaev-big-mixture-w-text/mixture",
+                        "index_dir": "/kaggle/working",
+                        "part": "train",
+                        "max_audio_length": 5.0
+                    }
+                }
+            ]
+        },
+        "test": {
+            "batch_size": 10,
+            "num_workers": 5,
+            "datasets": [
+                {
+                    "type": "MixerDataset",
+                    "args": {
+                        "data_dir": "/kaggle/input/tgritsaev-big-mixture-w-text/mixture",
+                        "index_dir": "/kaggle/working",
+                        "part": "test",
+                        "limit": 50
+                    }
+                }
+            ]
+        }
+    },
+    "optimizer": {
+        "type": "AdamW",
+        "args": {
+            "lr": 0.003
+        }
+    },
+    "loss": {
+        "type": "MultiLoss",
+        "args": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "gamma": 0.5
+        }
+    },
+    "metrics": [
+        {
+            "type": "SISDRMetric",
+            "args": {
+                "name": "SiSDRMetric"
+            }
+        },
+        {
+            "type": "PESQMetric",
+            "args": {
+                "name": "PESQMetric"
+            }
+        }
+    ],
+    "lr_scheduler": {
+        "type": "OneCycleLR",
+        "args": {
+            "steps_per_epoch": 100,
+            "epochs": 500,
+            "anneal_strategy": "cos",
+            "max_lr": 0.003,
+            "pct_start": 0.2
+        }
+    },
+    "trainer": {
+        "epochs": 500,
+        "save_dir": "saved/",
+        "save_period": 5,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "early_stop": 100,
+        "visualize": "wandb",
+        "wandb_project": "ss_project",
+        "len_epoch": 100,
+        "grad_norm_clip": 10
+    }
+}
